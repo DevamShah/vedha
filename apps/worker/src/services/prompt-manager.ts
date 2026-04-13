@@ -22,6 +22,19 @@ interface IncludeReplacement {
   content: string;
 }
 
+/**
+ * Sanitize user-provided values before interpolation into prompts.
+ * Prevents prompt injection by escaping template syntax and newlines
+ * that could break prompt structure.
+ */
+function sanitizePromptValue(value: string): string {
+  return value
+    .replace(/\{\{/g, '{ {') // Break template syntax
+    .replace(/\}\}/g, '} }')
+    .replace(/@include\(/gi, '@_include('); // Prevent include directive injection
+}
+
+
 // Pure function: Build complete login instructions from config
 async function buildLoginInstructions(
   authentication: Authentication,
@@ -65,15 +78,16 @@ async function buildLoginInstructions(
 
     if (authentication.credentials) {
       if (authentication.credentials.username) {
-        userInstructions = userInstructions.replace(/\$username/g, authentication.credentials.username);
+        userInstructions = userInstructions.replace(/\$username/g, sanitizePromptValue(authentication.credentials.username));
       }
       if (authentication.credentials.password) {
-        userInstructions = userInstructions.replace(/\$password/g, authentication.credentials.password);
+        // Pass full password so agent can actually authenticate, but sanitize for prompt injection
+        userInstructions = userInstructions.replace(/\$password/g, sanitizePromptValue(authentication.credentials.password));
       }
       if (authentication.credentials.totp_secret) {
         userInstructions = userInstructions.replace(
           /\$totp/g,
-          `generated TOTP code using secret "${authentication.credentials.totp_secret}"`,
+          `generated TOTP code using secret "${sanitizePromptValue(authentication.credentials.totp_secret)}"`,
         );
       }
     }
@@ -169,11 +183,11 @@ async function interpolateVariables(
     }
 
     let result = template
-      .replace(/{{WEB_URL}}/g, variables.webUrl)
-      .replace(/{{REPO_PATH}}/g, variables.repoPath)
+      .replace(/{{WEB_URL}}/g, sanitizePromptValue(variables.webUrl))
+      .replace(/{{REPO_PATH}}/g, sanitizePromptValue(variables.repoPath))
       .replace(/{{PLAYWRIGHT_SESSION}}/g, variables.PLAYWRIGHT_SESSION || 'agent1')
       .replace(/{{AUTH_CONTEXT}}/g, buildAuthContext(config))
-      .replace(/{{DESCRIPTION}}/g, config?.description ? `Description: ${config.description}` : '');
+      .replace(/{{DESCRIPTION}}/g, config?.description ? `Description: ${sanitizePromptValue(config.description)}` : '');
 
     if (config) {
       // Handle rules section - if both are empty, use cleaner messaging
@@ -185,8 +199,8 @@ async function interpolateVariables(
         const cleanRulesSection = '<rules>\nNo specific rules or focus areas provided for this test.\n</rules>';
         result = result.replace(/<rules>[\s\S]*?<\/rules>/g, cleanRulesSection);
       } else {
-        const avoidRules = hasAvoidRules ? config.avoid?.map((r) => `- ${r.description}`).join('\n') : 'None';
-        const focusRules = hasFocusRules ? config.focus?.map((r) => `- ${r.description}`).join('\n') : 'None';
+        const avoidRules = hasAvoidRules ? config.avoid?.map((r) => `- ${sanitizePromptValue(r.description)}`).join('\n') : 'None';
+        const focusRules = hasFocusRules ? config.focus?.map((r) => `- ${sanitizePromptValue(r.description)}`).join('\n') : 'None';
 
         result = result.replace(/{{RULES_AVOID}}/g, avoidRules).replace(/{{RULES_FOCUS}}/g, focusRules);
       }

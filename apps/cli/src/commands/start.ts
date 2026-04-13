@@ -52,7 +52,9 @@ export async function start(args: StartArgs): Promise<void> {
   // 5. Handle router env
   if (useRouter) {
     process.env.ANTHROPIC_BASE_URL = 'http://shannon-router:3456';
-    process.env.ANTHROPIC_AUTH_TOKEN = 'shannon-router-key';
+    // Generate ephemeral token per session instead of hardcoded credential
+    const crypto = await import('node:crypto');
+    process.env.ANTHROPIC_AUTH_TOKEN = process.env.ANTHROPIC_AUTH_TOKEN || crypto.randomBytes(32).toString('hex');
   }
 
   // 6. Ensure image (auto-build in dev, pull in npx) and start infra
@@ -65,8 +67,16 @@ export async function start(args: StartArgs): Promise<void> {
   const containerName = `shannon-worker-${suffix}`;
 
   // 8. Generate workspace name if not provided
-  const workspace =
-    args.workspace ?? `${new URL(args.url).hostname.replace(/[^a-zA-Z0-9-]/g, '-')}_shannon-${Date.now()}`;
+  let workspace = args.workspace;
+  if (!workspace) {
+    try {
+      const hostname = new URL(args.url).hostname.replace(/[^a-zA-Z0-9-]/g, '-');
+      workspace = `${hostname}_shannon-${Date.now()}`;
+    } catch {
+      console.error(`ERROR: Invalid URL provided: ${args.url}`);
+      process.exit(1);
+    }
+  }
 
   // 9. Create writable overlay directories (mounted over :ro repo paths inside container)
   // Workspace dir must be 0o777 so the container user (UID 1001) can create audit subdirs
@@ -175,8 +185,17 @@ export async function start(args: StartArgs): Promise<void> {
         printInfo(args, useRouter, workspace, workflowId, repo.hostPath, workspacesDir);
         return;
       }
-    } catch {
-      // File doesn't exist yet
+    } catch (error) {
+      // Distinguish between "file doesn't exist" and real errors
+      if (error instanceof SyntaxError) {
+        // Corrupted JSON — log warning but keep polling (worker may be writing)
+      } else if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
+        clearInterval(pollInterval);
+        process.stdout.write('\n');
+        console.error(`ERROR: Failed to read session file: ${(error as Error).message}`);
+        process.exit(1);
+      }
+      // ENOENT — file doesn't exist yet, continue polling
     }
     process.stdout.write('.');
   }, 2000);

@@ -165,6 +165,18 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
     process.exit(1);
   }
 
+  // Validate URL has valid scheme
+  try {
+    const parsed = new URL(url);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      console.error(`ERROR: --url must use http or https protocol, got: ${parsed.protocol}`);
+      process.exit(1);
+    }
+  } catch {
+    console.error(`ERROR: Invalid URL: ${url}`);
+    process.exit(1);
+  }
+
   return {
     url,
     repo,
