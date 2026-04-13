@@ -18,7 +18,7 @@ function isDockerAvailable(): boolean {
 
 export function build(noCache: boolean): void {
   if (!isLocal()) {
-    console.error('ERROR: Build is only available when running from the Shannon repository');
+    console.error('ERROR: Build is only available when running from the Vedha repository');
     console.error('  (Dockerfile not found in current directory)');
     console.error('');
     console.error('For npx usage, run: shannon update');
@@ -27,7 +27,7 @@ export function build(noCache: boolean): void {
 
   if (!isDockerAvailable()) {
     console.error('ERROR: Docker is not installed or not running.');
-    console.error('Shannon requires Docker to build the worker image. Install Docker Desktop:');
+    console.error('Vedha requires Docker to build the worker image. Install Docker Desktop:');
     console.error('  https://docs.docker.com/get-docker/');
     process.exit(1);
   }

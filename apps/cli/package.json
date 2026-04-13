@@ -1,11 +1,11 @@
 {
-  "name": "@keygraph/shannon",
-  "version": "0.0.0",
-  "description": "Shannon - Autonomous white-box AI pentester for web applications and APIs by Keygraph",
+  "name": "@archeon/vedha",
+  "version": "1.0.0",
+  "description": "Vedha - Autonomous white-box AI pentester for web applications and APIs by Archeon",
   "type": "module",
   "main": "dist/index.mjs",
   "bin": {
-    "shannon": "dist/index.mjs"
+    "vedha": "dist/index.mjs"
   },
   "files": [
     "dist",
@@ -32,13 +32,14 @@
     "owasp",
     "exploitation",
     "appsec",
-    "keygraph"
+    "archeon",
+    "vedha"
   ],
-  "author": "",
+  "author": "Devam Shah",
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KeygraphHQ/shannon.git",
+    "url": "git+https://github.com/DevamShah/vedha.git",
     "directory": "apps/cli"
   },
   "engines": {

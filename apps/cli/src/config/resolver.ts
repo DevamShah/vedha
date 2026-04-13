@@ -100,7 +100,7 @@ function loadTOML(): TOMLConfig | null {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`\nFailed to parse ${configPath}: ${message}`);
-    console.error(`\nRun 'npx @keygraph/shannon setup' to reconfigure.\n`);
+    console.error(`\nRun 'npx @archeon/vedha setup' to reconfigure.\n`);
     process.exit(1);
   }
 }

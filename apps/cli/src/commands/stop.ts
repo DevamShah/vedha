@@ -18,7 +18,7 @@ function isDockerAvailable(): boolean {
 export async function stop(clean: boolean): Promise<void> {
   if (!isDockerAvailable()) {
     console.error('ERROR: Docker is not installed or not running.');
-    console.error('Shannon requires Docker to manage containers. Install Docker Desktop:');
+    console.error('Vedha requires Docker to manage containers. Install Docker Desktop:');
     console.error('  https://docs.docker.com/get-docker/');
     process.exit(1);
   }

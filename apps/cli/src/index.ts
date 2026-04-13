@@ -1,5 +1,5 @@
 /**
- * Shannon CLI — AI Penetration Testing Framework
+ * Vedha CLI — Autonomous AI Pentester
  *
  * Unified CLI supporting two modes:
  *   Local mode: Run from cloned repo — builds locally, mounts prompts, uses ./workspaces/
@@ -37,10 +37,10 @@ function getVersion(): string {
 
 function showHelp(): void {
   const mode = getMode();
-  const prefix = mode === 'local' ? './shannon' : 'npx @keygraph/shannon';
+  const prefix = mode === 'local' ? './vedha' : 'npx @archeon/vedha';
 
   console.log(`
-Shannon - AI Penetration Testing Framework
+Vedha - Autonomous AI Pentester
 
 Usage:${
     mode === 'local'
@@ -57,7 +57,7 @@ Usage:${
       ? `
   ${prefix} build [--no-cache]                           Build worker image`
       : `
-  ${prefix} uninstall                                    Remove ~/.shannon/ and all data`
+  ${prefix} uninstall                                    Remove ~/.vedha/ and all data`
   }
   ${prefix} info                                         Show splash screen
   ${prefix} help                                         Show this help
@@ -81,7 +81,7 @@ ${
     ? `
 State directory: ./workspaces/`
     : `
-State directory: ~/.shannon/`
+State directory: ~/.vedha/`
 }
 Monitor workflows at http://localhost:8233
 `);
@@ -154,14 +154,14 @@ function parseStartArgs(argv: string[]): ParsedStartArgs {
         break;
       default:
         console.error(`Unknown option: ${arg}`);
-        console.error(`Run "${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} help" for usage`);
+        console.error(`Run "${getMode() === 'local' ? './vedha' : 'npx @archeon/vedha'} help" for usage`);
         process.exit(1);
     }
   }
 
   if (!url || !repo) {
     console.error('ERROR: --url and --repo are required');
-    console.error(`Usage: ${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} start -u <url> -r <path>`);
+    console.error(`Usage: ${getMode() === 'local' ? './vedha' : 'npx @archeon/vedha'} start -u <url> -r <path>`);
     process.exit(1);
   }
 
@@ -206,7 +206,7 @@ switch (command) {
     const workspaceId = args[1];
     if (!workspaceId) {
       console.error('ERROR: Workspace ID is required');
-      console.error(`Usage: ${getMode() === 'local' ? './shannon' : 'npx @keygraph/shannon'} logs <workspace>`);
+      console.error(`Usage: ${getMode() === 'local' ? './vedha' : 'npx @archeon/vedha'} logs <workspace>`);
       process.exit(1);
     }
     logs(workspaceId);

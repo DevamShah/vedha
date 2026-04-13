@@ -158,7 +158,7 @@ export function validateCredentials(): CredentialValidation {
   const hint =
     getMode() === 'local'
       ? `No credentials found. Set ANTHROPIC_API_KEY in .env or export it.`
-      : `Authentication not configured. Export variables or run 'npx @keygraph/shannon setup'.`;
+      : `Authentication not configured. Export variables or run 'npx @archeon/vedha setup'.`;
   return {
     valid: false,
     mode: 'api-key',

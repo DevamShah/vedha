@@ -95,7 +95,7 @@ export async function ensureInfra(useRouter: boolean): Promise<void> {
   if (temporalReady && routerNeeded) {
     console.log('Starting router...');
   } else {
-    console.log('Starting Shannon infrastructure...');
+    console.log('Starting Vedha infrastructure...');
   }
   execFileSync('docker', composeArgs, { stdio: 'inherit' });
 
