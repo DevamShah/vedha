@@ -1,48 +1,45 @@
 /**
  * Splash screen display — pure terminal output, no npm dependencies.
+ * Uses only basic ASCII characters for maximum terminal compatibility.
  */
 
 export function displaySplash(version?: string): void {
-  const GOLD = '\x1b[38;2;244;197;66m';
+  const GOLD = '\x1b[33;1m';
   const CYAN = '\x1b[36;1m';
   const WHITE = '\x1b[1;37m';
   const GRAY = '\x1b[0;37m';
   const YELLOW = '\x1b[1;33m';
   const RESET = '\x1b[0m';
 
-  const B = `${CYAN}\u2551${RESET}`;
-  const S67 = ' '.repeat(67);
-  const HR = '\u2550'.repeat(67);
+  const W = 63;
+  const HR = '-'.repeat(W);
 
   const lines = [
     '',
-    `  ${CYAN}\u2554${HR}\u2557${RESET}`,
-    `  ${B}${S67}${B}`,
-    `  ${B}      ${GOLD}\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557  \u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2557${RESET}       ${B}`,
-    `  ${B}      ${GOLD}\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255D\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557${RESET}      ${B}`,
-    `  ${B}      ${GOLD}\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551${RESET}      ${B}`,
-    `  ${B}      ${GOLD}\u255A\u2588\u2588\u2557 \u2588\u2588\u2554\u255D\u2588\u2588\u2554\u2550\u2550\u255D  \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551${RESET}      ${B}`,
-    `  ${B}       ${GOLD}\u255A\u2588\u2588\u2588\u2588\u2554\u255D \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551${RESET}      ${B}`,
-    `  ${B}        ${GOLD}\u255A\u2550\u2550\u2550\u255D  \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u255D  \u255A\u2550\u255D\u255A\u2550\u255D  \u255A\u2550\u255D${RESET}      ${B}`,
-    `  ${B}${S67}${B}`,
-    `  ${B}           ${CYAN}\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557${RESET}      ${B}`,
-    `  ${B}           ${CYAN}\u2551${RESET}  ${WHITE}Autonomous AI Pentester by Archeon${RESET}     ${CYAN}\u2551${RESET}      ${B}`,
-    `  ${B}           ${CYAN}\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D${RESET}      ${B}`,
-    `  ${B}${S67}${B}`,
+    `  ${CYAN}+${HR}+${RESET}`,
+    `  ${CYAN}|${RESET}${' '.repeat(W)}${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}     ${GOLD}__     __  _____  ____   _   _     _     ${RESET}      ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}     ${GOLD}\\ \\   / / | ____||  _ \\ | | | |   / \\    ${RESET}      ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}      ${GOLD}\\ \\ / /  |  _|  | | | || |_| |  / _ \\   ${RESET}      ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}       ${GOLD}\\ V /   | |___ | |_| ||  _  | / ___ \\  ${RESET}      ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}        ${GOLD}\\_/    |_____||____/ |_| |_|/_/   \\_\\ ${RESET}      ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}${' '.repeat(W)}${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}        ${WHITE}Autonomous AI Pentester by Archeon${RESET}          ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}${' '.repeat(W)}${CYAN}|${RESET}`,
   ];
 
   if (version) {
     const verStr = `v${version}`;
-    const verPadLeft = Math.floor((67 - verStr.length) / 2);
-    const verPadRight = 67 - verStr.length - verPadLeft;
-    lines.push(`  ${B}${' '.repeat(verPadLeft)}${GRAY}${verStr}${RESET}${' '.repeat(verPadRight)}${B}`);
+    const padLeft = Math.floor((W - verStr.length) / 2);
+    const padRight = W - verStr.length - padLeft;
+    lines.push(`  ${CYAN}|${RESET}${' '.repeat(padLeft)}${GRAY}${verStr}${RESET}${' '.repeat(padRight)}${CYAN}|${RESET}`);
+    lines.push(`  ${CYAN}|${RESET}${' '.repeat(W)}${CYAN}|${RESET}`);
   }
 
   lines.push(
-    `  ${B}${S67}${B}`,
-    `  ${B}                    ${YELLOW}\uD83D\uDD10 DEFENSIVE SECURITY ONLY \uD83D\uDD10${RESET}                  ${B}`,
-    `  ${B}${S67}${B}`,
-    `  ${CYAN}\u255A${HR}\u255D${RESET}`,
+    `  ${CYAN}|${RESET}           ${YELLOW}[ DEFENSIVE SECURITY ONLY ]${RESET}              ${CYAN}|${RESET}`,
+    `  ${CYAN}|${RESET}${' '.repeat(W)}${CYAN}|${RESET}`,
+    `  ${CYAN}+${HR}+${RESET}`,
     '',
   );
 
