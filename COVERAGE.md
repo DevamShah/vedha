@@ -1,3 +1,12 @@
+---
+tags:
+  - archeon
+  - forgeon
+  - product
+  - product-vedha
+  - src-doc
+---
+
 # Coverage and Roadmap
 
 A Web Security Testing (WST) checklist is a comprehensive guide that systematically outlines security tests for web applications, covering areas like information gathering, authentication, session management, input validation, and error handling to identify and mitigate vulnerabilities.

@@ -1,3 +1,12 @@
+---
+tags:
+  - archeon
+  - forgeon
+  - product
+  - product-vedha
+  - src-doc
+---
+
 <div align="center">
 
 # Vedha — Autonomous AI Pentester

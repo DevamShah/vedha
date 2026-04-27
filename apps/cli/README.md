@@ -1,3 +1,12 @@
+---
+tags:
+  - archeon
+  - forgeon
+  - product
+  - product-vedha
+  - src-doc
+---
+
 <div align="center">
 
 <img src="https://raw.githubusercontent.com/KeygraphHQ/shannon/main/assets/github-banner.png" alt="Shannon — AI Pentester for Web Applications and APIs" width="100%">

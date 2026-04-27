@@ -1,3 +1,12 @@
+---
+tags:
+  - archeon
+  - forgeon
+  - product
+  - product-vedha
+  - src-doc
+---
+
 # Shannon Pro
 
 Shannon Pro is Keygraph's comprehensive AppSec platform, combining SAST, SCA, secrets scanning, business logic security testing, and autonomous pentesting in a single correlated workflow:
