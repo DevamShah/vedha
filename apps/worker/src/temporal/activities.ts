@@ -30,6 +30,7 @@ import { executeGitCommandWithRetry } from '../services/git-manager.js';
 import { runPreflightChecks } from '../services/preflight.js';
 import type { ExploitationDecision, VulnType } from '../services/queue-validation.js';
 import { assembleFinalReport, injectModelIntoReport } from '../services/reporting.js';
+import { SarifReportOutputProvider } from '../services/sarif-output-provider.js';
 import { AGENTS } from '../session-manager.js';
 import type { AgentName } from '../types/agents.js';
 import { ALL_AGENTS } from '../types/agents.js';
@@ -376,6 +377,10 @@ export async function initDeliverableGit(input: ActivityInput): Promise<void> {
 
 /**
  * Assemble the final report by concatenating exploitation evidence files.
+ *
+ * When `VEDHA_REPORT_FORMAT=sarif` is set on the worker, a SARIF 2.1.0
+ * file is emitted alongside the markdown report. SARIF emission is
+ * best-effort: a failure here never blocks the markdown path.
  */
 export async function assembleReportActivity(input: ActivityInput): Promise<void> {
   const { repoPath } = input;
@@ -386,6 +391,19 @@ export async function assembleReportActivity(input: ActivityInput): Promise<void
   } catch (error) {
     const err = error as Error;
     logger.warn(`Error assembling final report: ${err.message}`);
+  }
+
+  const reportFormat = (process.env.VEDHA_REPORT_FORMAT ?? 'md').toLowerCase();
+  if (reportFormat === 'sarif') {
+    try {
+      const provider = new SarifReportOutputProvider(process.env.VEDHA_VERSION);
+      await provider.generate({ repoPath }, logger);
+    } catch (error) {
+      const err = error as Error;
+      logger.warn(`SARIF emission failed: ${err.message}`);
+    }
+  } else if (reportFormat !== 'md' && reportFormat !== '') {
+    logger.warn(`Unknown VEDHA_REPORT_FORMAT=${reportFormat}, expected md or sarif — skipping`);
   }
 }
 

@@ -1,26 +1,111 @@
->[!NOTE]
-> **[📢 New: Shannon is now available via `npx @keygraph/shannon`. →](https://github.com/KeygraphHQ/shannon/discussions/249)**
-
 <div align="center">
 
-<img src="./assets/github-banner.png" alt="Shannon — AI Pentester for Web Applications and APIs" width="100%">
+# Vedha — Autonomous AI Pentester
 
-# Shannon — AI Pentester by Keygraph
+**A friendly fork of [Shannon by Keygraph](https://github.com/KeygraphHQ/shannon),
+hardened and extended for production-side use.**
 
-<a href="https://trendshift.io/repositories/15604" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15604" alt="KeygraphHQ%2Fshannon | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+[![Upstream: Shannon](https://img.shields.io/badge/upstream-KeygraphHQ%2Fshannon-blue?logo=github)](https://github.com/KeygraphHQ/shannon)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
-Shannon is an autonomous, white-box AI pentester for web applications and APIs. <br />
-It analyzes your source code, identifies attack vectors, and executes real exploits to prove vulnerabilities before they reach production.
-
----
-
-<a href="https://discord.gg/9ZqQPuhJB7"><img src="./assets/discord.png" height="40" alt="Join Discord"></a>
-<a href="https://keygraph.io/"><img src="./assets/Keygraph_Button.png" height="40" alt="Visit Keygraph.io"></a>
-
----
 </div>
 
-## What is Shannon?
+## Credit & lineage
+
+Vedha is built on top of **[Shannon](https://github.com/KeygraphHQ/shannon)**,
+the open-source autonomous AI pentester developed by
+**[Keygraph](https://keygraph.io)**. The full pipeline architecture
+(Temporal workflows, the five-domain agent topology, browser-driven
+exploitation, the Wolfi container image, the report assembler) is
+Shannon's. The license is AGPL-3.0, inherited from upstream.
+
+If you're evaluating an AI pentester for the first time, **start with
+upstream Shannon** — it's the canonical project. Vedha exists for
+three reasons:
+
+1. To carry **security hardening patches** that haven't been upstreamed
+   yet (see "What Vedha adds" below).
+2. To act as a **testbed for additions** — like SARIF output — that
+   we're proposing back to upstream via PR.
+3. To let me run a customised build inside the Archeon agent stack
+   without forking the upstream's release cadence.
+
+Where this README still says "Shannon," that's because the upstream
+docs accurately describe behaviour Vedha inherits unchanged. Wherever
+behaviour differs, Vedha's section takes precedence.
+
+## What Vedha adds over upstream Shannon
+
+Three categories of changes layered on top of Shannon Lite:
+
+### 1. Security hardening (8 issues)
+
+| ID | What | File |
+|---|---|---|
+| **S-1** | `sanitizePromptValue()` neutralises `{{...}}` placeholder syntax and `@include(...)` directives in every user-controlled prompt interpolation site (config description, focus/avoid rule descriptions, credentials, auth-context). Prevents prompt injection by anyone who can write a Shannon config. | `apps/worker/src/services/prompt-manager.ts` |
+| **S-2** | Credentials (username / password / TOTP secret) are sanitised before reaching the prompt template. | same |
+| **S-3** | Rule descriptions in `config.avoid` and `config.focus` are sanitised before interpolation. | same |
+| **S-4** | `SHANNON_HOST_UID` / `SHANNON_HOST_GID` are validated as numeric and within `1..2_000_000` before they reach `groupadd`/`useradd`. Rejects 0 (root), negatives, and non-numeric input that would otherwise feed `userdel ; rm -rf /`-style payloads into a privileged command. | `entrypoint.sh` |
+| **S-5** | Container temp dirs (`/app`, `/tmp/.cache`, `/tmp/.config`, `/tmp/.npm`) drop from `chmod 777` to `chmod 770`. | `Dockerfile` |
+| **S-6** | URL is parsed once up front with a try/catch and an `http`/`https` scheme allowlist, instead of crashing mid-setup with a raw `TypeError` on a malformed input. | `apps/cli/src/index.ts` |
+| **S-7** | The `session.json` polling loop now distinguishes `ENOENT` (the expected steady-state) and `SyntaxError` (worker mid-write) from real I/O errors (`EACCES`, `EIO`, `ENOTDIR`), so a permissions issue surfaces with a real diagnostic instead of an indefinite spinner. | same |
+| **S-8** | Splash falls back to plain ASCII when the terminal doesn't advertise UTF-8, instead of emitting `?`/mojibake on raw cmd.exe / locale-less SSH / some CI log streams. | `apps/cli/src/splash.ts` |
+
+These patches were originally written for Vedha and have also been
+proposed back to upstream Shannon as
+[KeygraphHQ/shannon#322](https://github.com/KeygraphHQ/shannon/pull/322).
+
+### 2. SARIF 2.1.0 report output
+
+A new `--report-format sarif` flag emits a SARIF 2.1.0 file alongside
+the markdown report, so findings can be ingested by:
+
+- **GitHub Code Scanning** (auto-uploaded by `github/codeql-action/upload-sarif`)
+- **GitLab CI** security dashboards
+- **Defect Dojo**, **SonarQube**, and any other SARIF-aware scanner UI
+
+```bash
+./vedha start --url https://example.com --repo my-repo --report-format sarif
+# writes:
+#   <repo>/.shannon/deliverables/comprehensive_security_assessment_report.md
+#   <repo>/.shannon/deliverables/comprehensive_security_assessment_report.sarif
+```
+
+The tool driver advertises five rules tagged with their CWE IDs:
+`vedha.injection` (CWE-74), `vedha.xss` (CWE-79),
+`vedha.auth` (CWE-287), `vedha.ssrf` (CWE-918),
+`vedha.authz` (CWE-285). Default behaviour (`md`) is unchanged —
+SARIF is opt-in.
+
+### 3. Branding & integration
+
+- CLI rebranded to `./vedha` / `npx @archeon/vedha` (Shannon's `./shannon` invocation works too via the legacy entrypoint).
+- State directory at `~/.vedha/` instead of `~/.shannon/`.
+- Logo and ASCII splash refreshed.
+
+## Versioning & sync policy
+
+Vedha tracks Shannon mainline at coarse cadence — typically a couple of
+releases behind. When upstream ships a meaningful change (a CVE fix, a
+new vulnerability domain, a workflow refactor), Vedha syncs and tests
+before tagging.
+
+| Vedha version | Based on Shannon | What's new in Vedha |
+|---|---|---|
+| **v1.0.0** | pre-v1.1.0 main | Initial fork; 8 security fixes (S-1..S-8) |
+| **v1.1.0** *(this release)* | pre-v1.1.0 main | + SARIF 2.1.0 output (`--report-format sarif`) |
+
+For all upstream features not listed under "What Vedha adds," refer to
+[Shannon's documentation](https://github.com/KeygraphHQ/shannon) —
+Vedha inherits them unchanged.
+
+---
+
+> The remainder of this README is Shannon's documentation, lightly
+> edited for Vedha. Behaviour described below applies to Vedha
+> identically unless explicitly noted.
+
+## What is Shannon? (inherited)
 
 Shannon is an AI pentester developed by [Keygraph](https://keygraph.io). It performs white-box security testing of web applications and their underlying APIs by combining source code analysis with live exploitation.
 

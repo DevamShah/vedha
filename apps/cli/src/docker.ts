@@ -196,6 +196,7 @@ export interface WorkerOptions {
   outputDir?: string;
   workspace: string;
   pipelineTesting?: boolean;
+  reportFormat?: 'md' | 'sarif';
 }
 
 /**
@@ -243,6 +244,15 @@ export function spawnWorker(opts: WorkerOptions): ChildProcess {
 
   // Environment
   args.push(...opts.envFlags);
+
+  // Forward Vedha-specific runtime flags as env. Done as env (rather than
+  // CLI args) because the worker reads them inside the activity to gate
+  // optional output emission, and env survives Temporal serialisation
+  // without needing pipeline-input plumbing.
+  if (opts.reportFormat && opts.reportFormat !== 'md') {
+    args.push('-e', `VEDHA_REPORT_FORMAT=${opts.reportFormat}`);
+  }
+  args.push('-e', `VEDHA_VERSION=${opts.version}`);
 
   // Container settings
   args.push('--shm-size', '2gb', '--security-opt', 'seccomp=unconfined');

@@ -24,6 +24,7 @@ export interface StartArgs {
   output?: string;
   pipelineTesting: boolean;
   router: boolean;
+  reportFormat: 'md' | 'sarif';
   version: string;
 }
 
@@ -125,6 +126,7 @@ export async function start(args: StartArgs): Promise<void> {
     taskQueue,
     containerName,
     envFlags: buildEnvFlags(),
+    reportFormat: args.reportFormat,
     ...(config && { config }),
     ...(hasCredentials && { credentials: credentialsPath }),
     ...(promptsDir && { promptsDir }),
